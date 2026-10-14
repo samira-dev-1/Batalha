@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Batalha da Urna 22 x 13</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#cfc9bf; --bg2:#a9a296; --panel:#20242e; --panel2:#2c313d;
+  --blue:#1f6fe0; --blue2:#0d3f99; --red:#d8262f; --red2:#7d1117; --gold:#f5c518;
+  --display:"Anton","Impact","Arial Narrow",sans-serif;
+  --text:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,var(--bg),var(--bg2));color:#111;font-family:var(--text);
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:8px 8px 16px;position:relative}
+button{font-family:inherit;cursor:pointer}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}
+.tag{background:var(--panel);color:#d7dae0;font-family:var(--display);font-size:13px;padding:5px 12px;border-radius:999px}
+.live{display:flex;align-items:center;gap:6px;background:var(--panel);color:#fff;border-radius:999px;padding:5px 10px;font-family:var(--display);font-size:13px}
+.live i{width:10px;height:10px;border-radius:50%;background:#777;display:block}
+.live.ok i{background:#28d35b}.live.warn i{background:#f5c518}.live.err i{background:#ff3b3b}
+.gear{border:0;background:var(--panel);color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px}
+
+.clock{margin:0 auto 8px;width:fit-content;min-width:60%;background:var(--panel);color:#fff;border-radius:20px;text-align:center;
+  font-family:var(--display);font-size:clamp(60px,18vw,110px);line-height:1.05;padding:2px 24px 6px;font-variant-numeric:tabular-nums}
+.clock.low{animation:pulse 1s infinite}
+@keyframes pulse{50%{color:#ff5c5c}}
+
+.stats{display:grid;grid-template-columns:1fr 1fr 1.5fr;align-items:center;background:var(--panel);border-radius:18px;padding:5px;color:#fff;margin-bottom:8px}
+.stat{text-align:center}
+.stat small{display:block;color:#9ba1ad;font-weight:800;font-size:12px;letter-spacing:.06em}
+.stat b{font-family:var(--display);font-weight:400;font-size:clamp(24px,7vw,36px);line-height:1}
+.leader{border-radius:14px;text-align:center;font-family:var(--display);font-size:clamp(20px,6vw,30px);padding:9px 4px;background:#454b58}
+.leader.b22{background:linear-gradient(180deg,#3b8cff,var(--blue))}
+.leader.b13{background:linear-gradient(180deg,#f0444c,var(--red))}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.card{position:relative;border-radius:12px;overflow:hidden;color:#fff;padding:4px 8px 8px;border:3px solid}
+.c22{border-color:var(--blue);background:linear-gradient(180deg,var(--blue2) 0 24%,#141822 24%)}
+.c13{border-color:var(--red);background:linear-gradient(180deg,var(--red) 0 24%,#1c1214 24%)}
+.num{font-family:var(--display);font-size:clamp(28px,9vw,46px);line-height:1}
+.crown{position:absolute;top:7px;right:6px;background:var(--gold);color:#2b2200;font-family:var(--display);font-size:clamp(10px,3vw,14px);padding:2px 8px;border-radius:999px;visibility:hidden}
+.card.lead .crown{visibility:visible}
+.pts{display:flex;align-items:flex-start;justify-content:center;gap:4px;margin-top:4px}
+.pts b{font-family:var(--display);font-weight:400;font-size:clamp(46px,15vw,90px);line-height:1;font-variant-numeric:tabular-nums}
+.delta{font-family:var(--display);font-size:clamp(18px,5.5vw,30px);opacity:0;transition:opacity .3s}
+.c22 .delta{color:#cfe0ff}.c13 .delta{color:#ffd0d0}
+.delta.on{opacity:1}
+.lbl{text-align:center;font-family:var(--display);letter-spacing:.25em;color:#b7bcc7;font-size:clamp(11px,3vw,15px)}
+.bar{height:10px;border-radius:99px;background:#2c313d;margin:6px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;width:50%;border-radius:99px;transition:width .35s}
+.c22 .bar i{background:#3b8cff}.c13 .bar i{background:#ff4b55}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+.pct{font-family:var(--display);font-size:clamp(18px,5.5vw,28px)}
+.gifts{font-weight:700;font-size:clamp(12px,3.4vw,15px);color:#d5d8de}
+.last,.top1{margin-top:4px;background:rgba(255,255,255,.08);border-radius:7px;padding:3px 6px;font-weight:700;
+  font-size:clamp(11px,3.2vw,14px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:1.6em}
+.top1{background:rgba(245,197,24,.18);color:#ffe9a3}
+
+.urnas{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.urna{background:linear-gradient(180deg,#ece9e3,#d8d3ca);border:2px solid #c9c4ba;border-radius:10px;padding:6px;display:grid;grid-template-columns:1.2fr 1fr;gap:6px}
+.tela{background:#e9ecef;border:3px solid #6f727a;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;padding:4px;text-align:center}
+.tela .hint{font-weight:800;font-size:11px;color:#444}
+.digits{display:flex;gap:4px;margin:4px 0}
+.digits span{width:clamp(26px,8vw,42px);height:clamp(36px,11vw,56px);border:3px solid #222;background:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:clamp(24px,8vw,40px)}
+.tela.fim .digits,.tela.fim .hint{display:none}
+.fimTxt{display:none;flex-direction:column;align-items:center}
+.tela.fim .fimTxt{display:flex}
+.fimTxt b{font-family:var(--display);font-weight:400;font-size:clamp(38px,12vw,66px);line-height:.95;color:#4a1418}
+.fimTxt small{font-family:var(--display);font-size:clamp(10px,3vw,14px);color:#333}
+.fimTxt em{font-style:normal;font-family:var(--display);font-size:clamp(15px,4.6vw,24px);color:var(--red)}
+.teclado{background:#23262d;border-radius:5px;padding:4px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;align-content:start}
+.teclado span{background:#121317;color:#fff;font-weight:800;font-size:clamp(11px,3.4vw,15px);text-align:center;padding:4px 0;border-radius:3px;transition:background .1s,transform .1s}
+.teclado .z{grid-column:2}
+.teclado .cf{grid-column:1/-1;background:#2fb34f;color:#111;font-size:10px}
+.teclado span.press{background:var(--gold);color:#111;transform:scale(.9)}
+
+.feed{margin-top:8px;display:flex;flex-direction:column;gap:4px;min-height:40px}
+.ev{display:flex;align-items:center;gap:6px;background:rgba(20,22,28,.78);color:#fff;border-radius:999px;padding:4px 12px;font-weight:700;font-size:15px;animation:in .25s ease-out}
+.ev b{font-family:var(--display);font-weight:400;font-size:18px}
+.ev .t{margin-left:auto;font-family:var(--display);border-radius:999px;padding:0 8px}
+.ev .t22{background:var(--blue)}.ev .t13{background:var(--red)}.ev .t0{background:#555}
+@keyframes in{from{transform:translateX(-20px);opacity:0}}
+
+/* painel */
+.panel{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:20;overflow:auto;padding:12px}
+.panel.on{display:block}
+.box{max-width:520px;margin:0 auto;background:#1b1e26;color:#eef0f3;border-radius:16px;padding:14px}
+.box h2{font-family:var(--display);font-weight:400;margin:0 0 8px;font-size:26px}
+.box h3{margin:14px 0 6px;font-size:18px;color:#f5c518}
+.box label{display:block;font-weight:700;font-size:15px;margin:8px 0 3px}
+.box input[type=text],.box input[type=password],.box select{width:100%;padding:9px;border-radius:8px;border:1px solid #444;background:#0f1116;color:#fff;font-size:16px;font-family:inherit}
+.box .chk{display:flex;gap:8px;align-items:center;font-weight:600}
+.box .chk input{width:20px;height:20px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.btns button{border:0;border-radius:9px;padding:9px 14px;font-size:16px;font-weight:800;background:#3a3f4c;color:#fff}
+.btns .go{background:#1d9e4a}.btns .b22{background:var(--blue)}.btns .b13{background:var(--red)}
+.st{margin-top:8px;padding:8px;border-radius:8px;background:#0f1116;font-weight:700}
+.note{font-size:14px;color:#aab0bc;line-height:1.35;margin:6px 0 0}
+#log{width:100%;height:150px;background:#0b0c10;color:#9fe0a8;font-family:monospace;font-size:11px;border-radius:8px;padding:6px;border:1px solid #333;white-space:pre-wrap;overflow:auto}
+
+.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.7);z-index:15;padding:20px}
+.overlay.on{display:flex}
+.win{border-radius:22px;padding:22px 30px;color:#fff;text-align:center;max-width:400px;width:100%}
+.win h2{margin:0;font-family:var(--display);font-weight:400;font-size:28px}
+.win .big{font-family:var(--display);font-size:110px;line-height:1}
+.win p{font-size:19px;font-weight:700;margin:4px 0 14px}
+.win button{border:0;border-radius:12px;padding:10px 22px;font-size:19px;font-weight:800;background:#fff;color:#111}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="tag">SIMULAÇÃO • JOGO DE ENTRETENIMENTO</span>
+    <span class="live" id="live"><i></i><span id="liveTxt">OFFLINE</span></span>
+    <button class="gear" id="gear" aria-label="Configurações">⚙</button>
+  </div>
+
+  <div class="clock" id="clock">05:00</div>
+
+  <div class="stats">
+    <div class="stat"><small>TOTAL</small><b id="total">0</b></div>
+    <div class="stat"><small>DIFERENÇA</small><b id="diff">0</b></div>
+    <div class="leader" id="leader">EMPATADO</div>
+  </div>
+
+  <div class="cards">
+    <div class="card c22" id="card22">
+      <div class="num">22</div><div class="crown">NA FRENTE</div>
+      <div class="pts"><b id="p22">0</b><span class="delta" id="d22">+0</span></div>
+      <div class="lbl">PONTOS</div>
+      <div class="bar"><i id="bar22"></i></div>
+      <div class="row"><span class="pct" id="pct22">50,0%</span><span class="gifts" id="g22">0 presentes</span></div>
+      <div class="top1" id="top22">Mais enviado: ninguém ainda</div>
+      <div class="last" id="last22">Aguardando presentes…</div>
+    </div>
+    <div class="card c13" id="card13">
+      <div class="num">13</div><div class="crown">NA FRENTE</div>
+      <div class="pts"><b id="p13">0</b><span class="delta" id="d13">+0</span></div>
+      <div class="lbl">PONTOS</div>
+      <div class="bar"><i id="bar13"></i></div>
+      <div class="row"><span class="pct" id="pct13">50,0%</span><span class="gifts" id="g13">0 presentes</span></div>
+      <div class="top1" id="top13">Mais enviado: ninguém ainda</div>
+      <div class="last" id="last13">Aguardando presentes…</div>
+    </div>
+  </div>
+
+  <div class="urnas" id="urnas"></div>
+  <div class="feed" id="feed"></div>
+</div>
+
+<div class="panel" id="panel">
+  <div class="box">
+    <h2>Configurações</h2>
+
+    <h3>Conectar à sua LIVE</h3>
+    <label for="inUser">Seu @ do TikTok</label>
+    <input type="text" id="inUser" placeholder="ex: son_jon123" autocapitalize="off" autocomplete="off">
+    <label for="inKey">Chave da Euler Stream (opcional)</label>
+    <input type="password" id="inKey" placeholder="cole aqui se tiver" autocomplete="off">
+    <div class="btns">
+      <button class="go" id="btnConn">Conectar</button>
+      <button id="btnDisc">Desconectar</button>
+    </div>
+    <div class="st" id="connSt">Desconectado</div>
+    <p class="note">Você precisa estar AO VIVO para conectar. Se der erro de chave ou limite, crie uma conta grátis em eulerstream.com e cole a chave acima.</p>
+
+    <h3>Quais presentes contam para cada lado</h3>
+    <label for="in22">Presentes que vão para o 22 (separe por vírgula)</label>
+    <input type="text" id="in22">
+    <label for="in13">Presentes que vão para o 13</label>
+    <input type="text" id="in13">
+    <label class="chk"><input type="checkbox" id="chkChatTeam"> Outros presentes vão para o número que a pessoa comentou (13 ou 22)</label>
+    <label class="chk"><input type="checkbox" id="chkChatPts"> Comentar 13 ou 22 também vale 1 ponto</label>
+    <label for="selMode">Quanto vale cada presente</label>
+    <select id="selMode">
+      <option value="one">1 ponto por presente</option>
+      <option value="coins">Pontos = moedas do presente</option>
+    </select>
+    <p class="note">O nome exato de cada presente aparece no registro lá embaixo quando alguém envia. Copie de lá se algum não estiver contando.</p>
+
+    <h3>Partida</h3>
+    <label for="selTime">Duração</label>
+    <select id="selTime">
+      <option value="60">1 min</option><option value="180">3 min</option>
+      <option value="300">5 min</option><option value="600">10 min</option><option value="900">15 min</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="chkSom"> Som da urna</label>
+    <div class="btns">
+      <button class="go" id="btnStart">Iniciar</button>
+      <button id="btnReset">Zerar placar</button>
+    </div>
+
+    <h3>Testar sem live</h3>
+    <div class="btns">
+      <button class="b22" data-test="22">Presente teste 22</button>
+      <button class="b13" data-test="13">Presente teste 13</button>
+    </div>
+
+    <h3>Registro de eventos</h3>
+    <div id="log"></div>
+
+    <div class="btns"><button class="go" id="btnClose">Fechar e voltar ao jogo</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="win" id="winBox">
+    <h2 id="winTitle">VENCEDOR</h2>
+    <div class="big" id="winNum">22</div>
+    <p id="winTxt"></p>
+    <button id="btnAgain">Jogar de novo</button>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString("pt-BR");
+const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+
+// ---------- configurações salvas ----------
+const DEF={user:"son_jon123",key:"",g22:"TikTok",g13:"Rose, Rosa",chatTeam:true,chatPts:false,mode:"one",time:300,som:true};
+let S={...DEF};
+try{S={...DEF,...JSON.parse(localStorage.getItem("urna_cfg")||"{}")};}catch(e){}
+function save(){try{localStorage.setItem("urna_cfg",JSON.stringify(S));}catch(e){}}
+function fillForm(){
+  $("inUser").value=S.user;$("inKey").value=S.key;$("in22").value=S.g22;$("in13").value=S.g13;
+  $("chkChatTeam").checked=S.chatTeam;$("chkChatPts").checked=S.chatPts;$("selMode").value=S.mode;
+  $("selTime").value=String(S.time);$("chkSom").checked=S.som;
+}
+function readForm(){
+  S.user=$("inUser").value.trim().replace(/^@/,"");S.key=$("inKey").value.trim();
+  S.g22=$("in22").value;S.g13=$("in13").value;S.chatTeam=$("chkChatTeam").checked;
+  S.chatPts=$("chkChatPts").checked;S.mode=$("selMode").value;S.som=$("chkSom").checked;
+  S.time=+$("selTime").value;save();
+}
+
+// ---------- som ----------
+let ac=null;
+function beep(seq){
+  if(!S.som)return;
+  try{
+    ac=ac||new(window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==="suspended")ac.resume();
+    let t=ac.currentTime;
+    seq.forEach(([f,d])=>{const o=ac.createOscillator(),g=ac.createGain();o.type="square";o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d);t+=d+.02;});
+  }catch(e){}
+}
+const keySnd=()=>beep([[1100,.05]]);
+const fimSnd=()=>beep([[1700,.09],[1500,.09],[1700,.09],[1500,.09],[1700,.3]]);
+
+// ---------- estado do jogo ----------
+const G={s:{22:0,13:0},g:{22:0,13:0},by:{22:{},13:{}},left:300,running:false,ended:false,timer:null};
+const recent={22:0,13:0},recentT={22:null,13:null};
+
+function render(){
+  const a=G.s[22],b=G.s[13],t=a+b;
+  $("p22").textContent=fmt(a);$("p13").textContent=fmt(b);
+  $("total").textContent=fmt(t);$("diff").textContent=fmt(Math.abs(a-b));
+  const pa=t?a/t*100:50,pb=100-pa;
+  $("pct22").textContent=pa.toFixed(1).replace(".",",")+"%";
+  $("pct13").textContent=pb.toFixed(1).replace(".",",")+"%";
+  $("bar22").style.width=pa+"%";$("bar13").style.width=pb+"%";
+  $("g22").textContent=fmt(G.g[22])+" presentes";$("g13").textContent=fmt(G.g[13])+" presentes";
+  [22,13].forEach(n=>{
+    const e=Object.entries(G.by[n]).sort((x,y)=>y[1]-x[1])[0];
+    $("top"+n).textContent=e?"Mais enviado: "+e[0]+" ("+fmt(e[1])+")":"Mais enviado: ninguém ainda";
+  });
+  $("card22").classList.toggle("lead",a>b);$("card13").classList.toggle("lead",b>a);
+  const L=$("leader");
+  if(a>b){L.textContent="22 NA FRENTE";L.className="leader b22";}
+  else if(b>a){L.textContent="13 NA FRENTE";L.className="leader b13";}
+  else{L.textContent="EMPATADO";L.className="leader";}
+}
+function showDelta(n,amt){
+  recent[n]+=amt;const d=$("d"+n);d.textContent="+"+fmt(recent[n]);d.classList.add("on");
+  clearTimeout(recentT[n]);recentT[n]=setTimeout(()=>{d.classList.remove("on");recent[n]=0;},2500);
+}
+function feed(who,what,team){
+  const f=$("feed"),el=document.createElement("div");el.className="ev";
+  const w=document.createElement("span");w.textContent=who;
+  const b=document.createElement("b");b.textContent=what;
+  const t=document.createElement("span");t.className="t t"+team;t.textContent=team?team:"sem número";
+  el.append(w,b,t);f.prepend(el);
+  while(f.children.length>4)f.lastChild.remove();
+}
+function addPoints(team,pts,who,isGift,giftsCount){
+  if(G.ended||pts<=0)return;
+  if(!G.running&&G.left===S.time)start();
+  G.s[team]+=pts;if(isGift)G.g[team]+=giftsCount||1;
+  G.by[team][who]=(G.by[team][who]||0)+pts;
+  showDelta(team,pts);
+  $("last"+team).textContent=who+" • +"+fmt(pts)+(pts>1?" pontos":" ponto");
+  urnas[team].push(pts);
+  render();
+}
+
+// ---------- relógio ----------
+function drawClock(){
+  const m=Math.floor(G.left/60),s=G.left%60;
+  $("clock").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  $("clock").classList.toggle("low",G.running&&G.left<=10);
+}
+function start(){
+  if(G.ended)return;
+  G.running=true;$("btnStart").textContent="Pausar";clearInterval(G.timer);
+  G.timer=setInterval(()=>{G.left--;drawClock();if(G.left<=0)finish();},1000);drawClock();
+}
+function pause(){G.running=false;clearInterval(G.timer);$("btnStart").textContent="Continuar";drawClock();}
+function finish(){
+  clearInterval(G.timer);G.running=false;G.ended=true;G.left=0;drawClock();$("btnStart").textContent="Iniciar";
+  const a=G.s[22],b=G.s[13],box=$("winBox");
+  if(a===b){$("winTitle").textContent="EMPATE!";$("winNum").textContent="22 = 13";$("winNum").style.fontSize="64px";box.style.background="#454b58";$("winTxt").textContent=fmt(a)+" pontos para cada lado";}
+  else{const w=a>b?22:13;$("winTitle").textContent="VENCEDOR";$("winNum").textContent=w;$("winNum").style.fontSize="";
+    box.style.background=w===22?"var(--blue)":"var(--red)";
+    $("winTxt").textContent=fmt(Math.max(a,b))+" x "+fmt(Math.min(a,b))+" • diferença de "+fmt(Math.abs(a-b));}
+  fimSnd();$("overlay").classList.add("on");
+}
+function reset(){
+  clearInterval(G.timer);
+  G.s={22:0,13:0};G.g={22:0,13:0};G.by={22:{},13:{}};G.left=S.time;G.running=false;G.ended=false;
+  $("btnStart").textContent="Iniciar";$("last22").textContent=$("last13").textContent="Aguardando presentes…";
+  $("feed").innerHTML="";$("overlay").classList.remove("on");render();drawClock();
+}
+
+// ---------- urnas animadas ----------
+function makeUrna(num){
+  const el=document.createElement("div");el.className="urna";
+  const keys=[1,2,3,4,5,6,7,8,9].map(d=>`<span data-k="${d}">${d}</span>`).join("")+`<span class="z" data-k="0">0</span><span class="cf" data-k="c">CONFIRMA</span>`;
+  el.innerHTML=`<div class="tela"><div class="hint">SEU VOTO PARA</div><div class="digits"><span></span><span></span></div>
+    <div class="fimTxt"><b>FIM</b><small>CONFIRMADO</small><em></em></div></div><div class="teclado">${keys}</div>`;
+  $("urnas").appendChild(el);
+  const tela=el.querySelector(".tela"),sp=el.querySelectorAll(".digits span"),em=el.querySelector(".fimTxt em");
+  const key=k=>el.querySelector(`[data-k="${k}"]`);
+  const digits=String(num).split("");
+  let pending=0,busy=false;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  async function press(k){const b=key(k);b.classList.add("press");keySnd();await wait(180);b.classList.remove("press");}
+  async function run(){
+    busy=true;
+    while(pending>0){
+      sp[0].textContent="";sp[1].textContent="";
+      await press(digits[0]);sp[0].textContent=digits[0];await wait(80);
+      await press(digits[1]);sp[1].textContent=digits[1];await wait(120);
+      await press("c");
+      const n=pending;pending=0;
+      em.textContent="+"+fmt(n)+(n>1?" PONTOS":" PONTO");tela.classList.add("fim");fimSnd();
+      await wait(1000);tela.classList.remove("fim");sp[0].textContent="";sp[1].textContent="";await wait(100);
+    }
+    busy=false;
+  }
+  return{push(n){pending+=n;if(!busy)run();}};
+}
+const urnas={22:makeUrna(22),13:makeUrna(13)};
+
+// ---------- registro ----------
+function log(txt){
+  const l=$("log"),line=document.createElement("div");
+  line.textContent=new Date().toLocaleTimeString("pt-BR")+"  "+txt;l.prepend(line);
+  while(l.children.length>60)l.lastChild.remove();
+}
+
+// ---------- conexão TikTok LIVE ----------
+let ws=null,want=false,tries=0,retryT=null;
+function setStatus(txt,kind){
+  $("connSt").textContent=txt;
+  $("live").className="live "+(kind||"");
+  $("liveTxt").textContent=kind==="ok"?"AO VIVO":kind==="warn"?"CONECTANDO":"OFFLINE";
+}
+function connect(){
+  readForm();
+  if(!S.user){setStatus("Digite o seu @ do TikTok","err");return;}
+  want=true;tries=0;beep([[1,.001]]);open();
+}
+function open(){
+  clearTimeout(retryT);
+  if(ws){try{ws.onclose=null;ws.close();}catch(e){}ws=null;}
+  let url="wss://ws.eulerstream.com?uniqueId="+encodeURIComponent(S.user);
+  if(S.key)url+="&apiKey="+encodeURIComponent(S.key);
+  setStatus("Conectando a @"+S.user+"…","warn");log("conectando a @"+S.user);
+  try{ws=new WebSocket(url);}catch(e){setStatus("Erro: "+e.message,"err");return;}
+  ws.onopen=()=>{tries=0;setStatus("Conectado a @"+S.user+". Presentes já contam.","ok");log("conectado");};
+  ws.onmessage=e=>{
+    if(typeof e.data==="string")handle(e.data);
+    else if(e.data&&e.data.text)e.data.text().then(handle);
+  };
+  ws.onerror=()=>log("erro na conexão");
+  ws.onclose=e=>{
+    ws=null;
+    const why=e.reason||("código "+e.code);
+    log("conexão fechada: "+why);
+    if(want){
+      tries++;const d=Math.min(60,5*tries);
+      setStatus("Caiu ("+why+"). Tentando de novo em "+d+"s…","err");
+      retryT=setTimeout(open,d*1000);
+    }else setStatus("Desconectado","");
+  };
+}
+function disconnect(){want=false;clearTimeout(retryT);if(ws){try{ws.close();}catch(e){}}setStatus("Desconectado","");}
+
+// ---------- leitura dos eventos ----------
+const streaks={};const userTeam={};
+function handle(raw){
+  let d;try{d=JSON.parse(raw);}catch(e){log("mensagem não lida: "+String(raw).slice(0,80));return;}
+  const list=Array.isArray(d)?d:(d.messages||d.events||[d]);
+  list.forEach(m=>{
+    if(!m||typeof m!=="object")return;
+    const type=norm(m.type||m.event||m.method||"");
+    const p=m.data||m.payload||m;
+    if(type.includes("gift"))onGift(p);
+    else if(type.includes("chat")||type.includes("comment"))onChat(p);
+  });
+}
+function userOf(p){
+  const u=p.user||p.userInfo||p.sender||{};
+  const who=u.nickname||u.nickName||u.uniqueId||u.displayId||"Alguém";
+  const uid=String(u.userId||u.id||u.uniqueId||who);
+  return{who,uid};
+}
+function teamByGift(name){
+  const n=norm(name);if(!n)return 0;
+  const has=list=>list.split(",").map(norm).filter(Boolean).some(x=>x===n);
+  if(has(S.g22))return 22;if(has(S.g13))return 13;
+  const part=list=>list.split(",").map(norm).filter(x=>x.length>2).some(x=>n.includes(x));
+  if(part(S.g22))return 22;if(part(S.g13))return 13;
+  return 0;
+}
+function onGift(p){
+  const {who,uid}=userOf(p);
+  const g=p.giftDetails||p.gift||p.extendedGiftInfo||{};
+  const name=g.giftName||g.name||p.giftName||("Presente "+(p.giftId||""));
+  const coins=Math.max(1,+(g.diamondCount||g.diamond_count||p.diamondCount)||1);
+  const rc=Math.max(1,+(p.repeatCount||p.comboCount)||1);
+  const end=p.repeatEnd==1||p.repeatEnd===true;
+  const key=uid+"|"+(p.giftId||name)+"|"+(p.groupId||"");
+  const now=Date.now();
+  let s=streaks[key];
+  if(s&&s.ended){
+    if(end&&rc===s.n&&now-s.t<1500)return; // repetição do mesmo aviso
+    s=null;
+  }
+  let prev=s?s.n:0;if(rc<prev)prev=0;
+  const qty=rc-prev;
+  streaks[key]={n:rc,ended:end,t:now};
+  if(qty<=0)return;
+  let team=teamByGift(name);
+  if(!team&&S.chatTeam)team=userTeam[uid]||0;
+  log("PRESENTE: "+who+" enviou \""+name+"\" x"+qty+" ("+coins+" moedas) → "+(team||"sem número"));
+  feed(who,name+" x"+qty,team);
+  if(!team)return;
+  const pts=qty*(S.mode==="coins"?coins:1);
+  addPoints(team,pts,who,true,qty);
+}
+function onChat(p){
+  const {who,uid}=userOf(p);
+  const c=String(p.comment||p.content||p.text||"");
+  const m=c.match(/(^|\D)(13|22)(\D|$)/);
+  if(!m)return;
+  const team=+m[2];userTeam[uid]=team;
+  log("COMENTÁRIO: "+who+": "+c+" → escolheu "+team);
+  if(S.chatPts)addPoints(team,1,who,false);
+}
+
+// ---------- botões ----------
+$("gear").onclick=()=>{fillForm();$("panel").classList.add("on");};
+$("btnClose").onclick=()=>{readForm();$("panel").classList.remove("on");};
+$("btnConn").onclick=connect;
+$("btnDisc").onclick=disconnect;
+$("btnStart").onclick=()=>{readForm();if(G.ended)reset();G.running?pause():start();};
+$("btnReset").onclick=()=>{readForm();reset();};
+$("btnAgain").onclick=reset;
+["in22","in13","chkChatTeam","chkChatPts","selMode","chkSom"].forEach(id=>$(id).addEventListener("change",readForm));
+$("selTime").addEventListener("change",()=>{readForm();if(!G.running)reset();});
+let fake=1;
+document.querySelectorAll("[data-test]").forEach(b=>b.onclick=()=>{
+  readForm();const t=b.dataset.test;
+  const nm=(t==="22"?S.g22:S.g13).split(",")[0].trim()||"Teste";
+  handle(JSON.stringify({messages:[{type:"WebcastGiftMessage",data:{giftId:t,repeatCount:1,repeatEnd:1,user:{userId:"teste"+(fake++),nickname:"Teste"},giftDetails:{giftName:nm,diamondCount:1}}}]}));
+});
+
+window.__urna={handle,G,S};
+fillForm();reset();
+if(S.user){setStatus("Toque em ⚙ e em Conectar quando estiver ao vivo","");}
+})();
+</script>
+</body>
+</html>
